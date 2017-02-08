@@ -11,18 +11,39 @@ namespace DiceBot
     {
         static void Main(string[] args)
         {
-            DiscordClient dicebot = new DiscordClient();
-            dicebot.Connect(Token.getToken, TokenType.Bot);
-            dicebot.MessageReceived += DebugEchoTest;
+            DiscordClient dicebot = new DiscordClient(metadata =>
+            {
+                metadata.AppName = "DiscordDiceBot";
+                metadata.AppVersion = "0.1.0";
+                metadata.AppUrl = "https://github.com/KevinMech/dice-bot";
+                metadata.LogLevel = LogSeverity.Error;
+                metadata.LogHandler += ErrorLogHandling;
+            });
+            dicebot.ExecuteAndWait(async () =>
+            {
+                await dicebot.Connect(Token.getToken, TokenType.Bot);
+            });
             while (true)
             {
                 Console.ReadLine();
             }
         }
 
-        private static void DebugEchoTest(object sender, MessageEventArgs e)
+        /// <summary>
+        /// Logs any errors encountered by the discord API and prints to console screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        static void ErrorLogHandling(object sender, LogMessageEventArgs e)
         {
-            e.Channel.SendMessage("Message Received!");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(e.Message);
         }
+
+        //async static void DebugEchoTest(object sender, MessageEventArgs e)
+        //{
+        //    Console.WriteLine("message sent");
+        //    await e.Channel.SendMessage("Message Received!");
+        //}
     }
 }
