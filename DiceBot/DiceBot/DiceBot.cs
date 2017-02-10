@@ -22,40 +22,72 @@ namespace DiceBot
         }
 
         /// <summary>
-        /// Attempts to connect to Discords Server
+        /// Attempts to connect to Discords Server.
         /// </summary>
         /// <param name="maxTries">The amount of tries the bot will attempt to connect to the server</param>
         /// <param name="timeout">The amount of time in milliseconds the bot will make in between each attempt</param>
         private void Connect(int maxTries, int timeout)
         {
             bool success = false;
-            Console.WriteLine("Connecting to server...");
+            consoleLog("Connecting to server...", logType.System);
             for (int tries = 0; tries < maxTries; tries++)
             {
                 try
                 {
                     Console.WriteLine();
-                    Console.WriteLine("attempting connection...[" + (tries + 1) + "/3]");
+                    consoleLog("attempting connection...[" + (tries + 1) + "/3]", logType.System);
                     Task task = Task.Run(async () => await Connect(Token.getToken, TokenType.Bot));
                     task.Wait();
                     success = true;
-                    Console.WriteLine("Connected to server!");
+                    consoleLog("Connected to server!", logType.System);
                     break;
                 }
                 catch (AggregateException e)
                 {
-                    Console.WriteLine("Failed!");
-                    foreach (Exception exception in e.InnerExceptions) Console.WriteLine(exception.Message);
+                    consoleLog("Failed!", logType.Error);
+                    foreach (Exception exception in e.InnerExceptions) consoleLog(exception.Message, logType.Error);
                     if(tries < (maxTries - 1)) System.Threading.Thread.Sleep(timeout);
                 }
             }
             if (!success)
             {
                 Console.WriteLine();
-                Console.WriteLine("Could not connect to server!");
+                consoleLog("Could not connect to server!", logType.Error);
                 Console.ReadLine();
                 Environment.Exit(0);
             }
+        }
+
+        private enum logType
+        {
+            System,
+            Info,
+            Warning,
+            Error
+        }
+
+        /// <summary>
+        /// Logs any system messages to console depending on severity
+        /// </summary>
+        private void consoleLog(string message, logType logtype)
+        {
+            string TimeStamp = "[" + DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + ":" + DateTime.Now.Second.ToString() + "]";
+            switch (logtype)
+            {
+                case logType.System:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case logType.Info:
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case logType.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case logType.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+            }
+            Console.WriteLine(TimeStamp + message);
         }
 
         /// <summary>
