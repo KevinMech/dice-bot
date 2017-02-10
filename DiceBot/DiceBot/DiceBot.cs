@@ -22,13 +22,12 @@ namespace DiceBot
         }
 
         /// <summary>
-        /// Attempts to connect to Discords Server.
+        /// Attempts to connect the bot to Discords Server.
         /// </summary>
         /// <param name="maxTries">The amount of tries the bot will attempt to connect to the server</param>
         /// <param name="timeout">The amount of time in milliseconds the bot will make in between each attempt</param>
         private void Connect(int maxTries, int timeout)
         {
-            bool success = false;
             consoleLog("Connecting to server...", logType.System);
             for (int tries = 0; tries < maxTries; tries++)
             {
@@ -38,7 +37,6 @@ namespace DiceBot
                     consoleLog("attempting connection...[" + (tries + 1) + "/3]", logType.System);
                     Task task = Task.Run(async () => await Connect(Token.getToken, TokenType.Bot));
                     task.Wait();
-                    success = true;
                     consoleLog("Connected to server!", logType.System);
                     break;
                 }
@@ -46,15 +44,16 @@ namespace DiceBot
                 {
                     consoleLog("Failed!", logType.Error);
                     foreach (Exception exception in e.InnerExceptions) consoleLog(exception.Message, logType.Error);
+                    //If bot fails to connect to server, print error to screen and exit program
                     if(tries < (maxTries - 1)) System.Threading.Thread.Sleep(timeout);
+                    else
+                    {
+                        Console.WriteLine();
+                        consoleLog("Could not connect to server!", logType.Error);
+                        Console.ReadLine();
+                        Environment.Exit(0);
+                    }
                 }
-            }
-            if (!success)
-            {
-                Console.WriteLine();
-                consoleLog("Could not connect to server!", logType.Error);
-                Console.ReadLine();
-                Environment.Exit(0);
             }
         }
 
@@ -71,7 +70,7 @@ namespace DiceBot
         /// </summary>
         private void consoleLog(string message, logType logtype)
         {
-            string TimeStamp = "[" + DateTime.Now.Hour.ToString() + ":" + DateTime.Now.Minute.ToString() + ":" + DateTime.Now.Second.ToString() + "]";
+            string TimeStamp = "[" + DateTime.Now.ToLongTimeString() + "]";
             switch (logtype)
             {
                 case logType.System:
@@ -87,7 +86,7 @@ namespace DiceBot
                     Console.ForegroundColor = ConsoleColor.Red;
                     break;
             }
-            Console.WriteLine(TimeStamp + message);
+            Console.WriteLine(TimeStamp + " " + message);
         }
 
         /// <summary>
