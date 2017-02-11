@@ -17,7 +17,7 @@ namespace DiceBot
                 metadata.AppVersion = "0.1.0";
                 metadata.AppUrl = "https://github.com/KevinMech/dice-bot";
                 metadata.LogLevel = LogSeverity.Error;
-                metadata.LogHandler += DiceBot.ErrorLogHandling;
+                metadata.LogHandler += Logging.ErrorLogHandling;
             });
         }
     }
