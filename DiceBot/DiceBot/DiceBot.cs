@@ -9,12 +9,12 @@ namespace DiceBot
 {
     class DiceBot : DiscordClient
     {
-        //statistics recorded for the bot
-        public int TimesRun { get; }
-        public int DiceRolled { get; set; }
+        char SPECIALCHARACTER = '>';
+
         public DiceBot(Action<DiscordConfigBuilder> configFunc) : base(configFunc)
         {
             Connect(3, 4000);
+            MessageReceived += DiceBot_MessageReceived;
             while (true)
             {
                 Console.ReadLine();
@@ -55,6 +55,29 @@ namespace DiceBot
                     }
                 }
             }
+        }
+        /// <summary>
+        /// If bot recognizes a user in chat using roll command, will roll dice
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DiceBot_MessageReceived(object sender, MessageEventArgs e)
+        {
+            string[] message = e.Message.Text.Split(' ');
+            if(message[0] == SPECIALCHARACTER + "roll")
+            {
+                int diceSize = 0;
+                bool isNum = Int32.TryParse(message[1], out diceSize);
+                if (isNum)
+                {
+                    Random rand = new Random();
+                    int roll = rand.Next(1,diceSize);
+                    e.Channel.SendMessage("**" + e.User.Name + "** has rolled a **" + roll + "**");
+                }
+                else e.Channel.SendMessage(message[1] + " is not recognized! Please use a number and try again.");
+            }
+
+
         }
     }
 }
